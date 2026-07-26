@@ -1,10 +1,16 @@
 # Shubham Kumar — portfolio
 
-A React portfolio designed for GitHub Pages and built with Vite. The ShubhOS interface loads its page and article copy from Markdown, so content remains separate from the application shell.
+A React portfolio designed for GitHub Pages and built with Vite. The site uses a
+dark, software-native visual system and keeps long-form writing in Markdown so
+publishing remains independent from the application shell.
 
-## Edit the homepage
+## Edit the portfolio
 
-Change `content/pages/about.md`. The `projects.md` file controls the Projects page.
+The homepage layout and introductory copy live in `src/App.jsx`. The three
+LimeChat proof stories—the Voice product, Unified Messages System, and
+reliability initiative—live in `src/content/work.js`. Their animated diagrams
+are implemented behind the `ProofVisual` interface in
+`src/components/ProofVisuals.jsx`.
 
 ## Add a writing
 
@@ -81,6 +87,14 @@ npm run dev
 Open `http://127.0.0.1:4173`. Use `npm run build` to generate the deployable `dist/` directory without starting a server, or `npm run preview` to serve the production build locally.
 
 Vite watches the React source, CSS, Markdown content, and page shell. The writing index is regenerated before both development and production builds.
+
+The public writing routes remain:
+
+- `?page=writing` for the writing index.
+- `?post=your-post-slug` for an individual essay.
+
+The longer career biography and systems-project archive remain available at
+`?page=history` and `?page=projects`.
 
 ## Verify
 

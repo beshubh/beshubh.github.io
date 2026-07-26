@@ -1,53 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Article, MarkdownPage, NotFound, WritingIndex } from "./content/ContentViews.jsx";
-import { DesktopIcon } from "./components/DesktopIcon.jsx";
-import { DesktopWindow } from "./components/DesktopWindow.jsx";
-import { TerminalApp } from "./components/TerminalApp.jsx";
-import {
-  AboutIcon,
-  ArrowIcon,
-  MenuIcon,
-  PaletteIcon,
-  ProjectsIcon,
-  TerminalIcon,
-  WritingIcon,
-} from "./components/Icons.jsx";
-import { hrefForView, idForView, viewFromSearch } from "./lib/routes.js";
-
-const applications = [
-  {
-    kind: "about",
-    label: "About me",
-    title: "about.md",
-    detail: "01 — PROFILE",
-    accent: "#9ef01a",
-    icon: AboutIcon,
-  },
-  {
-    kind: "writing",
-    label: "Writing",
-    title: "writing/",
-    detail: "02 — NOTES",
-    accent: "#00c2d1",
-    icon: WritingIcon,
-  },
-  {
-    kind: "projects",
-    label: "Projects",
-    title: "projects.md",
-    detail: "03 — BUILDS",
-    accent: "#ffb000",
-    icon: ProjectsIcon,
-  },
-  {
-    kind: "terminal",
-    label: "Terminal",
-    title: "portfolio.shell",
-    detail: "04 — COMMAND",
-    accent: "#ff5c35",
-    icon: TerminalIcon,
-  },
-];
+import { workProof } from "./content/work.js";
+import { ProofVisual } from "./components/ProofVisuals.jsx";
+import { hrefForSection, hrefForView, viewFromSearch } from "./lib/routes.js";
+import messageCore from "./assets/message-core.webp";
 
 const defaultSite = {
   name: "Shubham Kumar",
@@ -56,73 +12,249 @@ const defaultSite = {
   admin: "https://shubh-portfolio-admin.shubhamkumar7051.workers.dev/admin/",
 };
 
-function applicationFor(kind) {
-  return applications.find((application) => application.kind === kind);
+function plainClick(event) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
-function windowLayout(view) {
-  const viewportWidth = globalThis.innerWidth || 1440;
-  const viewportHeight = globalThis.innerHeight || 900;
-  const article = view.kind === "post";
-  const terminal = view.kind === "terminal";
-  const preferredWidth = article ? 920 : terminal ? 900 : view.kind === "about" ? 860 : view.kind === "writing" ? 820 : 760;
-  const preferredHeight = article ? 720 : terminal ? 670 : view.kind === "about" ? 660 : view.kind === "writing" ? 640 : 620;
-  const width = Math.min(preferredWidth, viewportWidth - 72);
-  const height = Math.min(preferredHeight, viewportHeight - 150);
-  const preferredX = article ? 210 : terminal ? 270 : view.kind === "about" ? 230 : view.kind === "writing" ? 310 : 360;
-  const preferredY = article ? 72 : terminal ? 70 : view.kind === "about" ? 86 : view.kind === "writing" ? 82 : 100;
-
-  return {
-    x: Math.max(24, Math.min(preferredX, viewportWidth - width - 30)),
-    y: Math.max(54, Math.min(preferredY, viewportHeight - height - 76)),
-    width,
-    height,
-  };
+function HeaderLink({ children, href, onClick }) {
+  return (
+    <a
+      href={href}
+      onClick={(event) => {
+        if (!plainClick(event)) return;
+        event.preventDefault();
+        onClick();
+      }}
+    >
+      {children}
+    </a>
+  );
 }
 
-function makeWindow(view, z) {
-  const application = applicationFor(view.kind);
-  return {
-    id: idForView(view),
-    view,
-    title: application?.title || (view.kind === "post" ? `${view.slug}.md` : "not-found"),
-    accent: application?.accent || (view.kind === "post" ? "#ff5c35" : "#9ef01a"),
-    minimized: false,
-    maximized: false,
-    z,
-    ...windowLayout(view),
-  };
+function SiteHeader({ onNavigate, site, theme, toggleTheme }) {
+  return (
+    <>
+      <div className="site-announcement">
+        <span>~ PRINCIPAL SOFTWARE ENGINEER / BENGALURU, INDIA</span>
+        <span>SYSTEMS THAT STAY USEFUL UNDER PRESSURE &gt;&gt;</span>
+      </div>
+      <header className="site-header">
+        <HeaderLink href={hrefForView({ kind: "about" })} onClick={() => onNavigate({ kind: "about" })}>
+          <span className="site-identity">
+            <strong>SHUBHAM KUMAR</strong>
+            <small>SYSTEMS / RELIABILITY<br />VOICE AI / RUST</small>
+          </span>
+        </HeaderLink>
+        <nav aria-label="Primary navigation">
+          <HeaderLink href={hrefForView({ kind: "about" })} onClick={() => onNavigate({ kind: "about" })}>
+            [ ABOUT ]
+          </HeaderLink>
+          <HeaderLink href={hrefForSection("work")} onClick={() => onNavigate({ kind: "about" }, "work")}>
+            [ PROOF ]
+          </HeaderLink>
+          <HeaderLink href={hrefForView({ kind: "writing" })} onClick={() => onNavigate({ kind: "writing" })}>
+            [ WRITINGS ]
+          </HeaderLink>
+          <a href={site.github} rel="me">[ GITHUB ↗ ]</a>
+          <button type="button" onClick={toggleTheme} aria-label="Toggle color theme">
+            [ {theme === "dark" ? "LIGHT" : "DARK"} ]
+          </button>
+        </nav>
+      </header>
+    </>
+  );
 }
 
-function useClock() {
-  const [now, setNow] = useState(() => new Date());
+function Hero({ site }) {
+  return (
+    <section className="hero" id="about">
+      <div className="hero-copy">
+        <span className="route-label">~/ABOUT</span>
+        <p className="system-line">~*~ SOFTWARE BUILT BY SHUBHAM KUMAR ~*~</p>
+        <h1>I build software that stays useful when reality stops cooperating.</h1>
+        <p className="hero-summary">
+          Principal software engineer working on distributed systems, reliability,
+          performance, and AI infrastructure. I like the part after the happy path.
+        </p>
+        <div className="hero-actions">
+          <a href="#work">READ THE PROOF ↓</a>
+          <a href={`mailto:${site.email}`}>SEND A MESSAGE ↗</a>
+        </div>
+      </div>
 
-  useEffect(() => {
-    const timer = globalThis.setInterval(() => setNow(new Date()), 30_000);
-    return () => globalThis.clearInterval(timer);
-  }, []);
+      <figure className="hero-artifact">
+        <img src={messageCore} alt="Abstract interlocking metal sculpture representing a resilient message-processing core" />
+        <figcaption className="artifact-note artifact-note--one">MESSAGE CORE<br />REV. 04</figcaption>
+        <figcaption className="artifact-note artifact-note--two">FAILURE IS<br />ROUTABLE</figcaption>
+        <span className="artifact-reading">100M+ / DAY</span>
+      </figure>
 
-  return {
-    time: new Intl.DateTimeFormat("en", { hour: "2-digit", minute: "2-digit", hour12: false }).format(now),
-    date: new Intl.DateTimeFormat("en", { day: "2-digit", month: "short" }).format(now),
-  };
+      <div className="hero-status">
+        <span>STATUS: BUILDING</span><span>LOCAL TIME: IST</span><span>SCROLL ↓</span>
+      </div>
+    </section>
+  );
 }
 
-function windowLabel(windowState) {
-  if (windowState.view.kind === "post" && windowState.title.endsWith(".md")) return "Article";
-  return applicationFor(windowState.view.kind)?.label || windowState.title;
+function AboutTimeline() {
+  return (
+    <section className="about-timeline" aria-labelledby="path-title">
+      <div>
+        <span className="route-label">~/PATH</span>
+        <h2 id="path-title">Built from curiosity.<br />Sharpened in production.</h2>
+      </div>
+      <ol>
+        <li><span>2017</span><strong>Started programming on an Android phone.</strong><p>The first program came before the first laptop.</p></li>
+        <li><span>2020</span><strong>Shipped the first production backend.</strong><p>Search, pub/sub, real-time chat, and infrastructure for real users.</p></li>
+        <li><span>2021 → NOW</span><strong>Growing systems at LimeChat.</strong><p>From backend engineer to principal engineer across messaging, voice, and reliability.</p></li>
+      </ol>
+    </section>
+  );
+}
+
+function ProofStory({ proof, onNavigate }) {
+  return (
+    <article className={`proof-story proof-story--${proof.id}`}>
+      <div className="proof-copy">
+        <span className="proof-number"># {proof.index} / 03</span>
+        <small>{proof.eyebrow}</small>
+        <h3>{proof.title}</h3>
+        <p>{proof.summary}</p>
+        <ul>
+          {proof.details.map((detail) => <li key={detail}>* {detail}</li>)}
+        </ul>
+        <dl>
+          {proof.metrics.map((metric) => (
+            <div key={metric.label}>
+              <dt>{metric.label}</dt><dd>{metric.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {proof.articleSlug ? (
+          <a
+            className="proof-essay"
+            href={hrefForView({ kind: "post", slug: proof.articleSlug })}
+            onClick={(event) => {
+              if (!plainClick(event)) return;
+              event.preventDefault();
+              onNavigate({ kind: "post", slug: proof.articleSlug });
+            }}
+          >
+            READ THE ENGINEERING NOTE ↗
+          </a>
+        ) : (
+          <span className="proof-essay proof-essay--muted">INTERNAL SYSTEM / NO PUBLIC NOTE</span>
+        )}
+      </div>
+      <div className="proof-visual">
+        <header><span>FIG. {proof.index}</span><span>ANIMATED SYSTEM VIEW</span></header>
+        <ProofVisual type={proof.id} />
+        <footer>MODEL / SIMPLIFIED FOR EXPLANATION / NOT TO SCALE</footer>
+      </div>
+    </article>
+  );
+}
+
+function ProofSection({ onNavigate }) {
+  return (
+    <section className="proof" id="work">
+      <header className="section-heading">
+        <span className="route-label">~/PROOF-OF-WORK</span>
+        <div>
+          <h2>Three systems that changed the company.</h2>
+          <p>VOICE / MESSAGING / RELIABILITY</p>
+        </div>
+      </header>
+      {workProof.map((proof) => <ProofStory key={proof.id} proof={proof} onNavigate={onNavigate} />)}
+    </section>
+  );
+}
+
+function Principle() {
+  return (
+    <section className="principle">
+      <span>OPERATING PRINCIPLE / 001</span>
+      <blockquote>
+        “The goal is not zero failure.<br />
+        It’s a system that <em>knows what to do next.</em>”
+      </blockquote>
+    </section>
+  );
+}
+
+function Home({ onNavigate, site }) {
+  return (
+    <main id="main-content">
+      <Hero site={site} />
+      <AboutTimeline />
+      <Principle />
+      <ProofSection onNavigate={onNavigate} />
+    </main>
+  );
+}
+
+function ArchivePage({ page, title, description, onNavigate }) {
+  return (
+    <main id="main-content" className="reading-page archive-page">
+      <header className="document-heading archive-heading">
+        <p className="document-kicker">~/archive/{page}</p>
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </header>
+      <MarkdownPage page={page} metadataKey={page} onNavigate={onNavigate} />
+    </main>
+  );
+}
+
+function SiteFooter({ onNavigate, site }) {
+  return (
+    <footer className="site-footer">
+      <div>
+        <span>~/CONTACT</span>
+        <h2>Have a difficult system?</h2>
+        <a href={`mailto:${site.email}`}>{site.email} ↗</a>
+      </div>
+      <p>SHUBHAM KUMAR<br />BENGALURU / INDIA<br />© {new Date().getFullYear()}</p>
+      <nav>
+        <a href={site.github} rel="me">GITHUB ↗</a>
+        <HeaderLink href={hrefForView({ kind: "writing" })} onClick={() => onNavigate({ kind: "writing" })}>WRITINGS ↗</HeaderLink>
+        <HeaderLink href={hrefForView({ kind: "history" })} onClick={() => onNavigate({ kind: "history" })}>CAREER LOG ↗</HeaderLink>
+        <HeaderLink href={hrefForView({ kind: "projects" })} onClick={() => onNavigate({ kind: "projects" })}>PROJECTS ↗</HeaderLink>
+        <a href={site.admin}>PUBLISH ↗</a>
+        <a href="#top">BACK TO TOP ↑</a>
+      </nav>
+    </footer>
+  );
 }
 
 export default function App() {
-  const initialView = useMemo(() => viewFromSearch(globalThis.location.search), []);
-  const initialWindow = useMemo(() => makeWindow(initialView, 1), [initialView]);
-  const [windows, setWindows] = useState([initialWindow]);
-  const [activeId, setActiveId] = useState(initialWindow.id);
-  const [startOpen, setStartOpen] = useState(false);
+  const [view, setView] = useState(() => viewFromSearch(globalThis.location.search));
   const [site, setSite] = useState(defaultSite);
-  const [theme, setTheme] = useState(() => globalThis.localStorage?.getItem("shubh-os-theme") || "day");
-  const zIndex = useRef(1);
-  const clock = useClock();
+  const [theme, setTheme] = useState(() => globalThis.localStorage?.getItem("shubh-theme") || "dark");
+  const [articleTitle, setArticleTitle] = useState("");
+
+  const navigate = useCallback((nextView, section = "") => {
+    const href = section ? `${hrefForView(nextView)}#${encodeURIComponent(section)}` : hrefForView(nextView);
+    globalThis.history.pushState({}, "", href);
+    setView(nextView);
+
+    globalThis.requestAnimationFrame(() => {
+      if (section) document.getElementById(section)?.scrollIntoView();
+      else globalThis.scrollTo({ top: 0, behavior: "instant" });
+    });
+  }, []);
+
+  useEffect(() => {
+    function handlePopState() {
+      setView(viewFromSearch(globalThis.location.search));
+      globalThis.requestAnimationFrame(() => {
+        if (globalThis.location.hash) document.querySelector(globalThis.location.hash)?.scrollIntoView();
+        else globalThis.scrollTo({ top: 0, behavior: "instant" });
+      });
+    }
+    globalThis.addEventListener("popstate", handlePopState);
+    return () => globalThis.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -135,278 +267,72 @@ export default function App() {
     return () => controller.abort();
   }, []);
 
-  const openView = useCallback((view, historyMode = "push") => {
-    const id = idForView(view);
-    const z = ++zIndex.current;
-    setWindows((current) => {
-      const existing = current.find((item) => item.id === id);
-      if (existing) {
-        return current.map((item) =>
-          item.id === id ? { ...item, minimized: false, z } : item,
-        );
-      }
-      return [...current, makeWindow(view, z)];
-    });
-    setActiveId(id);
-    setStartOpen(false);
-
-    if (historyMode === "push") globalThis.history.pushState({}, "", hrefForView(view));
-    if (historyMode === "replace") globalThis.history.replaceState({}, "", hrefForView(view));
-  }, []);
+  useEffect(() => {
+    globalThis.localStorage?.setItem("shubh-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
 
   useEffect(() => {
-    function handlePopState() {
-      openView(viewFromSearch(globalThis.location.search), null);
-    }
-    globalThis.addEventListener("popstate", handlePopState);
-    return () => globalThis.removeEventListener("popstate", handlePopState);
-  }, [openView]);
-
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === "Escape") setStartOpen(false);
-    }
-    globalThis.addEventListener("keydown", handleKeyDown);
-    return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const activeWindow = windows.find((item) => item.id === activeId);
-
-  useEffect(() => {
-    const title = activeWindow
-      ? activeWindow.view.kind === "about"
-        ? "About"
-        : activeWindow.view.kind === "writing"
-          ? "Writing"
-          : activeWindow.view.kind === "projects"
+    const page = view.kind === "writing"
+      ? "Writing"
+      : view.kind === "post"
+        ? articleTitle || "Essay"
+        : view.kind === "history"
+          ? "Career log"
+          : view.kind === "projects"
             ? "Projects"
-            : activeWindow.view.kind === "terminal"
-              ? "Terminal"
-            : activeWindow.title.replace(/\.md$/, "")
-      : "Desktop";
-    document.title = `${title} — ${site.name}`;
-  }, [activeWindow, site.name]);
+        : view.kind === "about"
+          ? "Systems, reliability, voice AI"
+          : "Not found";
+    document.title = `${page} — ${site.name}`;
+  }, [articleTitle, site.name, view.kind]);
 
-  const focusWindow = useCallback(
-    (id, syncRoute = true) => {
-      const target = windows.find((item) => item.id === id);
-      if (!target) return;
-      const z = ++zIndex.current;
-      setWindows((current) =>
-        current.map((item) =>
-          item.id === id ? { ...item, minimized: false, z } : item,
-        ),
-      );
-      setActiveId(id);
-      if (syncRoute) globalThis.history.replaceState({}, "", hrefForView(target.view));
-    },
-    [windows],
-  );
-
-  const minimizeWindow = useCallback((id) => {
-    const visible = windows
-      .filter((item) => item.id !== id && !item.minimized)
-      .sort((a, b) => b.z - a.z);
-    setWindows((current) =>
-      current.map((item) => (item.id === id ? { ...item, minimized: true } : item)),
+  let content;
+  if (view.kind === "about") content = <Home onNavigate={navigate} site={site} />;
+  else if (view.kind === "writing") content = <main id="main-content" className="reading-page"><WritingIndex onNavigate={navigate} /></main>;
+  else if (view.kind === "post") {
+    content = (
+      <main id="main-content" className="reading-page reading-page--article">
+        <Article
+          slug={view.slug}
+          metadataKey={view.slug}
+          onNavigate={navigate}
+          onMetadata={(_, metadata) => setArticleTitle(metadata.title)}
+        />
+      </main>
     );
-    setActiveId(visible[0]?.id || "");
-    if (visible[0]) globalThis.history.replaceState({}, "", hrefForView(visible[0].view));
-  }, [windows]);
-
-  const closeWindow = useCallback((id) => {
-    const visible = windows
-      .filter((item) => item.id !== id && !item.minimized)
-      .sort((a, b) => b.z - a.z);
-    setWindows((current) => current.filter((item) => item.id !== id));
-    setActiveId(visible[0]?.id || "");
-    if (visible[0]) globalThis.history.replaceState({}, "", hrefForView(visible[0].view));
-  }, [windows]);
-
-  const toggleMaximize = useCallback((id) => {
-    setWindows((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, maximized: !item.maximized } : item,
-      ),
+  } else if (view.kind === "history") {
+    content = (
+      <ArchivePage
+        page="about"
+        title="Career log"
+        description="The longer path—from an Android phone to production systems at scale."
+        onNavigate={navigate}
+      />
     );
-  }, []);
-
-  const moveWindow = useCallback((id, position) => {
-    setWindows((current) =>
-      current.map((item) => (item.id === id ? { ...item, ...position } : item)),
+  } else if (view.kind === "projects") {
+    content = (
+      <ArchivePage
+        page="projects"
+        title="Systems lab"
+        description="Small machines built to understand the large ones."
+        onNavigate={navigate}
+      />
     );
-  }, []);
-
-  const updateMetadata = useCallback((id, metadata) => {
-    if (!metadata?.title) return;
-    setWindows((current) => {
-      let changed = false;
-      const next = current.map((item) => {
-        if (item.id !== id || item.view.kind !== "post" || item.title === metadata.title) return item;
-        changed = true;
-        return { ...item, title: metadata.title };
-      });
-      return changed ? next : current;
-    });
-  }, []);
-
-  function toggleTheme() {
-    const next = theme === "day" ? "night" : "day";
-    setTheme(next);
-    globalThis.localStorage?.setItem("shubh-os-theme", next);
-  }
-
-  function contentFor(windowState) {
-    const common = {
-      metadataKey: windowState.id,
-      onMetadata: updateMetadata,
-      onNavigate: openView,
-    };
-
-    if (windowState.view.kind === "about") return <MarkdownPage page="about" {...common} />;
-    if (windowState.view.kind === "projects") return <MarkdownPage page="projects" {...common} />;
-    if (windowState.view.kind === "writing") return <WritingIndex onNavigate={openView} />;
-    if (windowState.view.kind === "terminal") return <TerminalApp onNavigate={openView} />;
-    if (windowState.view.kind === "post") {
-      return <Article slug={windowState.view.slug} {...common} />;
-    }
-    return <NotFound />;
-  }
+  } else content = <main id="main-content" className="reading-page"><NotFound /></main>;
 
   return (
-    <div className="os-shell" data-theme={theme}>
-      <a className="skip-link" href="#desktop-workspace">Skip to desktop</a>
-
-      <header className="system-bar">
-        <button
-          type="button"
-          className="system-brand"
-          onClick={() => openView({ kind: "about" })}
-          aria-label="Open About me"
-        >
-          <span className="system-brand__mark">SK</span>
-          <span>SHUBH::OS</span>
-          <span className="system-brand__version">r2</span>
-        </button>
-        <div className="system-location" aria-live="polite">
-          <span className="system-location__dot" aria-hidden="true" />
-          {activeWindow ? windowLabel(activeWindow) : "Desktop"}
-        </div>
-        <div className="system-status">
-          <span className="system-status__label">NODE: PORTFOLIO // 2026</span>
-          <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label="Toggle color theme">
-            <PaletteIcon />
-          </button>
-        </div>
-      </header>
-
-      <main id="desktop-workspace" className="desktop-workspace">
-        <div className="wallpaper-grid" aria-hidden="true" />
-        <div className="wallpaper-orbit wallpaper-orbit--one" aria-hidden="true" />
-        <div className="wallpaper-orbit wallpaper-orbit--two" aria-hidden="true" />
-        <div className="wallpaper-sticker" aria-hidden="true">
-          <span>&gt;_ SK</span>
-          <small>ROOT@SHUBH</small>
-        </div>
-        <div className="wallpaper-status" aria-hidden="true">
-          <span>KERNEL</span>
-          <strong>ACTIVE</strong>
-          <span>{applications.length} PROCESSES</span>
-        </div>
-
-        <nav className="desktop-icons" aria-label="Portfolio applications">
-          {applications.map((application) => (
-            <DesktopIcon
-              key={application.kind}
-              {...application}
-              onOpen={() => openView({ kind: application.kind })}
-            />
-          ))}
-        </nav>
-
-        <div className="window-layer">
-          {windows.map((windowState) => (
-            <DesktopWindow
-              key={windowState.id}
-              windowState={windowState}
-              active={windowState.id === activeId}
-              onClose={() => closeWindow(windowState.id)}
-              onFocus={() => focusWindow(windowState.id)}
-              onMinimize={() => minimizeWindow(windowState.id)}
-              onMove={(position) => moveWindow(windowState.id, position)}
-              onToggleMaximize={() => toggleMaximize(windowState.id)}
-            >
-              {contentFor(windowState)}
-            </DesktopWindow>
-          ))}
-        </div>
-      </main>
-
-      {startOpen ? (
-        <aside className="start-menu" aria-label="ShubhOS menu">
-          <div className="start-menu__header">
-            <span className="start-menu__avatar">SK</span>
-            <span>
-              <strong>{site.name}</strong>
-              <small>Portfolio</small>
-            </span>
-          </div>
-          <nav className="start-menu__apps" aria-label="Applications">
-            {applications.map(({ kind, label, icon: Icon, accent }) => (
-              <button key={kind} type="button" onClick={() => openView({ kind })}>
-                <span style={{ "--menu-accent": accent }}><Icon size={30} /></span>
-                <strong>{label}</strong>
-                <ArrowIcon />
-              </button>
-            ))}
-          </nav>
-          <footer className="start-menu__footer">
-            <p>© {new Date().getFullYear()} {site.name}.</p>
-            <span>
-              <a href={`mailto:${site.email}`}>Email</a>
-              <a href={site.github} rel="me">GitHub</a>
-              <a href={site.admin}>Admin</a>
-            </span>
-          </footer>
-        </aside>
-      ) : null}
-
-      <footer className="dock" aria-label="Taskbar">
-        <button
-          className={`dock-start${startOpen ? " is-open" : ""}`}
-          type="button"
-          onClick={() => setStartOpen((open) => !open)}
-          aria-expanded={startOpen}
-          aria-label="Open ShubhOS menu"
-        >
-          <MenuIcon />
-          <span>SYS</span>
-        </button>
-
-        <div className="dock-tasks" aria-label="Open windows">
-          {windows.map((windowState) => (
-            <button
-              className={`dock-task${windowState.id === activeId && !windowState.minimized ? " is-active" : ""}`}
-              key={windowState.id}
-              type="button"
-              onClick={() => focusWindow(windowState.id)}
-            >
-              <span style={{ background: windowState.accent }} aria-hidden="true" />
-              {windowLabel(windowState)}
-            </button>
-          ))}
-        </div>
-
-        <div className="dock-links">
-          <a href={`mailto:${site.email}`}>Email</a>
-          <a href={site.github} rel="me">GitHub</a>
-          <a href={site.admin}>Admin</a>
-        </div>
-        <div className="dock-clock" aria-label={`${clock.date}, ${clock.time}`}>
-          <strong>{clock.time}</strong>
-          <span>{clock.date}</span>
-        </div>
-      </footer>
+    <div className="site-shell" data-theme={theme} id="top">
+      <div className="page-frame" aria-hidden="true" />
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <SiteHeader
+        onNavigate={navigate}
+        site={site}
+        theme={theme}
+        toggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+      />
+      {content}
+      <SiteFooter onNavigate={navigate} site={site} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-const pageViews = new Set(["about", "writing", "projects", "terminal"]);
+const pageViews = new Set(["about", "writing", "projects", "history"]);
 
 export function viewFromSearch(search = "") {
   const params = new URLSearchParams(search);
@@ -19,6 +19,10 @@ export function hrefForView(view) {
 
   if (pageViews.has(view.kind)) return `./?page=${view.kind}`;
   return "./?page=not-found";
+}
+
+export function hrefForSection(section) {
+  return `${hrefForView({ kind: "about" })}#${encodeURIComponent(section)}`;
 }
 
 export function idForView(view) {
