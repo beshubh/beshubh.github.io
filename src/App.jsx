@@ -21,7 +21,7 @@ const defaultSite = {
   name: "Shubham Kumar",
   email: "bshubh@proton.me",
   github: "https://github.com/beshubh",
-  linkedin: "",
+  linkedin: "https://www.linkedin.com/in/shubham--sk/",
   admin: "https://shubh-portfolio-admin.shubhamkumar7051.workers.dev/admin/",
 };
 
@@ -213,7 +213,7 @@ function WorkStory({ proof, onNavigate }) {
         )}
       </div>
       <figure className="work-story__visual">
-        <figcaption><span>fig.{Number(proof.index)}</span><span className="muted">live · simplified · not to scale</span></figcaption>
+        <figcaption><span>fig.{Number(proof.index)}</span><span className="muted">live · simplified</span></figcaption>
         <div className="scroll-x"><FlowDiagram type={proof.id} label={proof.summary} /></div>
       </figure>
     </article>
@@ -260,7 +260,7 @@ function Contact({ site }) {
             "$ whoami",
             "shubham — principal software engineer",
             "$ cat interests.txt",
-            "queues, consensus, backpressure, webrtc, rust",
+            "rust, databases, distributed systems, webrtc",
             "$ ping shubham",
             "64 bytes from bengaluru: reply within a day",
           ]}
