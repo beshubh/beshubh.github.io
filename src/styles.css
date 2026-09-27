@@ -15,11 +15,12 @@
   --line: #262624;
   --grid: rgba(255, 255, 255, .025);
 
-  --accent: #f5c542;
-  --accent-ink: #111;
-  --cta: #f4511e;
-  --banner: #f2c230;
-  --banner-ink: #111;
+  --accent: #5ce1e6;
+  --accent-ink: #0a0a0a;
+  --cta: #ff4fa3;
+  --cta-ink: #fff;
+  --banner: #5ce1e6;
+  --banner-ink: #0a0a0a;
 
   --blue: #5c9dff;
   --orange: #f4722b;
@@ -44,9 +45,9 @@
   --faint: #b9b8ae;
   --line: #d6d5cb;
   --grid: rgba(0, 0, 0, .035);
-  --accent: #b7860b;
+  --accent: #0e7f86;
   --accent-ink: #fff;
-  --cta: #d9420f;
+  --cta: #c21f73;
   --blue: #1f63d6;
   --orange: #c9500e;
   --yellow: #9a7400;
@@ -141,8 +142,8 @@ ol, ul { list-style: none; }
   transition: background .15s, color .15s;
 }
 .button--outline { border: 2px solid var(--cta); color: var(--bright); }
-.button--outline:hover { background: var(--cta); color: #fff; }
-.button--solid { border: 2px solid var(--cta); background: var(--cta); color: #fff; }
+.button--outline:hover { background: var(--cta); color: var(--cta-ink); }
+.button--solid { border: 2px solid var(--cta); background: var(--cta); color: var(--cta-ink); }
 .button--solid:hover { background: transparent; color: var(--bright); }
 .button--lg { padding: .7rem 1.1rem; }
 
