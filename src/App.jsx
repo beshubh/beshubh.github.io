@@ -1,236 +1,405 @@
 import { useCallback, useEffect, useState } from "react";
-import { Article, MarkdownPage, NotFound, WritingIndex } from "./content/ContentViews.jsx";
+import {
+  Article,
+  Dots,
+  MarkdownPage,
+  NotFound,
+  PageHeading,
+  PostList,
+  ProjectList,
+  ProjectsPage,
+  RouteLink,
+  WritingIndex,
+  useProjects,
+  useWritingIndex,
+} from "./content/ContentViews.jsx";
 import { workProof } from "./content/work.js";
-import { ProofVisual } from "./components/ProofVisuals.jsx";
-import { hrefForSection, hrefForView, viewFromSearch } from "./lib/routes.js";
-import messageCore from "./assets/message-core.webp";
+import { Clock, CountUp, DecryptBanner, FlowDiagram, Torus, Typewriter } from "./components/Ascii.jsx";
+import { hrefForView, viewFromSearch } from "./lib/routes.js";
 
 const defaultSite = {
   name: "Shubham Kumar",
   email: "bshubh@proton.me",
   github: "https://github.com/beshubh",
+  linkedin: "",
   admin: "https://shubh-portfolio-admin.shubhamkumar7051.workers.dev/admin/",
 };
 
-function plainClick(event) {
-  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+function withDerived(site) {
+  const handle = site.handle || new URL(site.github).pathname.split("/").filter(Boolean)[0] || "";
+  return { ...site, handle };
 }
 
-function HeaderLink({ children, href, onClick }) {
+const primaryNav = [
+  { kind: "home", label: "Home", key: "h" },
+  { kind: "writing", label: "Writing", key: "w" },
+  { kind: "projects", label: "Projects", key: "p" },
+  { kind: "about", label: "About", key: "a" },
+];
+
+function contactLinks(site) {
+  return [
+    { label: "github", href: site.github, text: site.github.replace(/^https?:\/\//, "") },
+    { label: "email", href: `mailto:${site.email}`, text: site.email },
+    site.linkedin && { label: "linkedin", href: site.linkedin, text: site.linkedin.replace(/^https?:\/\/(www\.)?/, "") },
+    site.x && { label: "x", href: site.x, text: site.x.replace(/^https?:\/\/(www\.)?/, "") },
+  ].filter(Boolean);
+}
+
+function Announcement({ onNavigate }) {
+  const state = useWritingIndex();
+  const latest = state.status === "ready" ? state.value[0] : null;
+  if (!latest) return <div className="announcement" aria-hidden="true">&nbsp;</div>;
+
   return (
-    <a
-      href={href}
-      onClick={(event) => {
-        if (!plainClick(event)) return;
-        event.preventDefault();
-        onClick();
-      }}
-    >
-      {children}
-    </a>
+    <div className="announcement">
+      <span>New writing: {latest.title.replace(/\.$/, "")}.</span>{" "}
+      <RouteLink className="announcement__cta" view={{ kind: "post", slug: latest.slug }} onNavigate={onNavigate}>Read it</RouteLink>
+    </div>
   );
 }
 
-function SiteHeader({ onNavigate, site, theme, toggleTheme }) {
+function SiteHeader({ view, onNavigate, site, theme, toggleTheme }) {
+  const active = view.kind === "post" ? "writing" : view.kind;
   return (
-    <>
-      <div className="site-announcement">
-        <span>~ PRINCIPAL SOFTWARE ENGINEER / BENGALURU, INDIA</span>
-        <span>SYSTEMS THAT STAY USEFUL UNDER PRESSURE &gt;&gt;</span>
-      </div>
-      <header className="site-header">
-        <HeaderLink href={hrefForView({ kind: "about" })} onClick={() => onNavigate({ kind: "about" })}>
-          <span className="site-identity">
-            <strong>SHUBHAM KUMAR</strong>
-            <small>SYSTEMS / RELIABILITY<br />VOICE AI / RUST</small>
+    <header className="site-header">
+      <RouteLink className="logo" view={{ kind: "home" }} onNavigate={onNavigate} aria-label="Shubham Kumar — home">
+        <span className="logo__mark" aria-hidden="true">sk<span className="logo__cursor">_</span></span>
+      </RouteLink>
+      <nav className="site-nav" aria-label="Primary navigation">
+        {primaryNav.map((item, index) => (
+          <span key={item.kind}>
+            {index ? <span className="pipe" aria-hidden="true">|</span> : null}
+            <RouteLink
+              view={{ kind: item.kind }}
+              onNavigate={onNavigate}
+              aria-current={active === item.kind ? "page" : undefined}
+              aria-keyshortcuts={item.key}
+            >
+              {item.label}
+            </RouteLink>
           </span>
-        </HeaderLink>
-        <nav aria-label="Primary navigation">
-          <HeaderLink href={hrefForView({ kind: "about" })} onClick={() => onNavigate({ kind: "about" })}>
-            [ ABOUT ]
-          </HeaderLink>
-          <HeaderLink href={hrefForSection("work")} onClick={() => onNavigate({ kind: "about" }, "work")}>
-            [ PROOF ]
-          </HeaderLink>
-          <HeaderLink href={hrefForView({ kind: "writing" })} onClick={() => onNavigate({ kind: "writing" })}>
-            [ WRITINGS ]
-          </HeaderLink>
-          <a href={site.github} rel="me">[ GITHUB ↗ ]</a>
-          <button type="button" onClick={toggleTheme} aria-label="Toggle color theme">
-            [ {theme === "dark" ? "LIGHT" : "DARK"} ]
-          </button>
-        </nav>
-      </header>
-    </>
+        ))}
+      </nav>
+      <div className="site-header__actions">
+        <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+          {theme === "dark" ? "☼" : "☾"}
+        </button>
+        <a className="button button--outline" href={site.github} rel="me">GitHub</a>
+        <a className="button button--solid" href={`mailto:${site.email}`}>Get in touch</a>
+      </div>
+    </header>
   );
 }
 
-function Hero({ site }) {
+/* ------------------------------------------------------------------ */
+/* Home                                                                */
+/* ------------------------------------------------------------------ */
+
+const stats = [
+  { label: "messages / day", value: "100M+", note: "unified messages system" },
+  { label: "requests / day", value: "1B", note: "across every channel" },
+  { label: "voice revenue", value: "$600K+", note: "product I started", accent: true },
+  { label: "cpu after rust port", value: "-80%", note: "python → rust media bridge", accent: true },
+  { label: "queue outages", value: "0", note: "since the breakers landed" },
+  { label: "peak agent latency", value: "6s", note: "down from 15s", accent: true },
+];
+
+function Hero({ site, onNavigate }) {
+  const [copied, setCopied] = useState(false);
+  const command = `echo "hi" | mail ${site.email}`;
+
   return (
-    <section className="hero" id="about">
-      <div className="hero-copy">
-        <span className="route-label">~/ABOUT</span>
-        <p className="system-line">~*~ SOFTWARE BUILT BY SHUBHAM KUMAR ~*~</p>
-        <h1>I build software that stays useful when reality stops cooperating.</h1>
-        <p className="hero-summary">
-          Principal software engineer working on distributed systems, reliability,
-          performance, and AI infrastructure. I like the part after the happy path.
-        </p>
-        <div className="hero-actions">
-          <a href="#work">READ THE PROOF ↓</a>
-          <a href={`mailto:${site.email}`}>SEND A MESSAGE ↗</a>
+    <section className="hero" aria-labelledby="hero-title">
+      <div className="hero__tabs" aria-hidden="true">
+        <span className="accent">SHUBHAM KUMAR</span>
+        <span>PRINCIPAL ENGINEER</span>
+        <span>DISTRIBUTED SYSTEMS</span>
+        <span>RELIABILITY</span>
+        <span>VOICE AI · RUST</span>
+      </div>
+      <div className="hero__grid">
+        <div className="hero__copy">
+          <p className="comment">// principal software engineer · bengaluru, in</p>
+          <DecryptBanner word="SHUBHAM" label="Shubham" />
+          <h1 id="hero-title">
+            I build systems that <span className="accent">stay up</span> when reality stops cooperating.
+          </h1>
+          <p className="hero__summary">
+            Principal engineer at <a href="https://limechat.ai">LimeChat</a>. I designed the messaging backbone that moves
+            100M+ messages a day, started the company's voice AI product, and led the work that taught our overloaded systems
+            to protect themselves. I like the part after the happy path.
+          </p>
+          <div className="command">
+            <span className="prompt">$</span>
+            <code>{command}</code>
+            <button
+              type="button"
+              onClick={() => {
+                const clipboard = globalThis.navigator.clipboard;
+                if (!clipboard) return;
+                clipboard.writeText(site.email).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1600);
+                }, () => {});
+              }}
+            >
+              {copied ? "COPIED" : "COPY EMAIL"}
+            </button>
+          </div>
+          <div className="hero__actions">
+            <RouteLink className="button button--solid button--lg" view={{ kind: "writing" }} onNavigate={onNavigate}>Read the writing →</RouteLink>
+            <a className="button button--outline button--lg" href="#work">See the work ↓</a>
+          </div>
         </div>
+        <figure className="hero__visual">
+          <figcaption>
+            <span>fig.0 — torus.rs</span>
+            <span className="muted">rendering @ 30fps</span>
+          </figcaption>
+          <Torus />
+          <div className="hero__status">
+            <span><i className="led" aria-hidden="true" /> status: building</span>
+            <Clock />
+          </div>
+        </figure>
       </div>
-
-      <figure className="hero-artifact">
-        <img src={messageCore} alt="Abstract interlocking metal sculpture representing a resilient message-processing core" />
-        <figcaption className="artifact-note artifact-note--one">MESSAGE CORE<br />REV. 04</figcaption>
-        <figcaption className="artifact-note artifact-note--two">FAILURE IS<br />ROUTABLE</figcaption>
-        <span className="artifact-reading">100M+ / DAY</span>
-      </figure>
-
-      <div className="hero-status">
-        <span>STATUS: BUILDING</span><span>LOCAL TIME: IST</span><span>SCROLL ↓</span>
-      </div>
+      <dl className="stats">
+        {stats.map((stat) => (
+          <div key={stat.label}>
+            <dt>{stat.label}</dt>
+            <dd className={stat.accent ? "accent" : ""}><CountUp value={stat.value} /></dd>
+            <dd className="muted">{stat.note}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
 
-function AboutTimeline() {
+function SectionTitle({ path, title, aside }) {
   return (
-    <section className="about-timeline" aria-labelledby="path-title">
+    <header className="section-title">
+      <p className="muted">~/{path}</p>
       <div>
-        <span className="route-label">~/PATH</span>
-        <h2 id="path-title">Built from curiosity.<br />Sharpened in production.</h2>
+        <h2>{title}</h2>
+        {aside}
       </div>
-      <ol>
-        <li><span>2017</span><strong>Started programming on an Android phone.</strong><p>The first program came before the first laptop.</p></li>
-        <li><span>2020</span><strong>Shipped the first production backend.</strong><p>Search, pub/sub, real-time chat, and infrastructure for real users.</p></li>
-        <li><span>2021 → NOW</span><strong>Growing systems at LimeChat.</strong><p>From backend engineer to principal engineer across messaging, voice, and reliability.</p></li>
-      </ol>
-    </section>
+    </header>
   );
 }
 
-function ProofStory({ proof, onNavigate }) {
+function WorkStory({ proof, onNavigate }) {
   return (
-    <article className={`proof-story proof-story--${proof.id}`}>
-      <div className="proof-copy">
-        <span className="proof-number"># {proof.index} / 03</span>
-        <small>{proof.eyebrow}</small>
+    <article className="work-story">
+      <div className="work-story__copy">
+        <p className="muted">#{proof.index} · {proof.eyebrow.toLowerCase()}</p>
         <h3>{proof.title}</h3>
         <p>{proof.summary}</p>
         <ul>
-          {proof.details.map((detail) => <li key={detail}>* {detail}</li>)}
+          {proof.details.map((detail) => <li key={detail}>{detail}</li>)}
         </ul>
-        <dl>
+        <dl className="work-story__metrics">
           {proof.metrics.map((metric) => (
-            <div key={metric.label}>
-              <dt>{metric.label}</dt><dd>{metric.value}</dd>
-            </div>
+            <div key={metric.label}><dd>{metric.value}</dd><dt>{metric.label}</dt></div>
           ))}
         </dl>
         {proof.articleSlug ? (
-          <a
-            className="proof-essay"
-            href={hrefForView({ kind: "post", slug: proof.articleSlug })}
-            onClick={(event) => {
-              if (!plainClick(event)) return;
-              event.preventDefault();
-              onNavigate({ kind: "post", slug: proof.articleSlug });
-            }}
-          >
-            READ THE ENGINEERING NOTE ↗
-          </a>
+          <RouteLink className="link-arrow" view={{ kind: "post", slug: proof.articleSlug }} onNavigate={onNavigate}>
+            read the engineering note →
+          </RouteLink>
         ) : (
-          <span className="proof-essay proof-essay--muted">INTERNAL SYSTEM / NO PUBLIC NOTE</span>
+          <span className="muted">internal system · no public note yet</span>
         )}
       </div>
-      <div className="proof-visual">
-        <header><span>FIG. {proof.index}</span><span>ANIMATED SYSTEM VIEW</span></header>
-        <ProofVisual type={proof.id} />
-        <footer>MODEL / SIMPLIFIED FOR EXPLANATION / NOT TO SCALE</footer>
-      </div>
+      <figure className="work-story__visual">
+        <figcaption><span>fig.{Number(proof.index)}</span><span className="muted">live · simplified · not to scale</span></figcaption>
+        <div className="scroll-x"><FlowDiagram type={proof.id} label={proof.summary} /></div>
+      </figure>
     </article>
   );
 }
 
-function ProofSection({ onNavigate }) {
+function RecentWriting({ onNavigate, site }) {
+  const state = useWritingIndex();
+  if (state.status !== "ready") return null;
   return (
-    <section className="proof" id="work">
-      <header className="section-heading">
-        <span className="route-label">~/PROOF-OF-WORK</span>
-        <div>
-          <h2>Three systems that changed the company.</h2>
-          <p>VOICE / MESSAGING / RELIABILITY</p>
-        </div>
-      </header>
-      {workProof.map((proof) => <ProofStory key={proof.id} proof={proof} onNavigate={onNavigate} />)}
+    <section className="home-section" aria-labelledby="writing-title">
+      <SectionTitle
+        path="writing"
+        title={<span id="writing-title">Recent writing</span>}
+        aside={<RouteLink className="link-arrow" view={{ kind: "writing" }} onNavigate={onNavigate}>all posts →</RouteLink>}
+      />
+      <PostList posts={state.value.slice(0, 3)} onNavigate={onNavigate} site={site} />
     </section>
   );
 }
 
-function Principle() {
+function SelectedProjects({ onNavigate }) {
+  const { status, projects } = useProjects();
+  if (status !== "ready" || !projects.length) return null;
   return (
-    <section className="principle">
-      <span>OPERATING PRINCIPLE / 001</span>
-      <blockquote>
-        “The goal is not zero failure.<br />
-        It’s a system that <em>knows what to do next.</em>”
-      </blockquote>
+    <section className="home-section" aria-labelledby="projects-title">
+      <SectionTitle
+        path="projects"
+        title={<span id="projects-title">Built to understand</span>}
+        aside={<RouteLink className="link-arrow" view={{ kind: "projects" }} onNavigate={onNavigate}>all projects →</RouteLink>}
+      />
+      <ProjectList projects={projects.slice(0, 4)} />
+    </section>
+  );
+}
+
+function Contact({ site }) {
+  return (
+    <section className="home-section contact" id="contact" aria-labelledby="contact-title">
+      <SectionTitle path="contact" title={<span id="contact-title">Have a difficult system?</span>} />
+      <div className="contact__grid">
+        <Typewriter
+          lines={[
+            "$ whoami",
+            "shubham — principal software engineer",
+            "$ cat interests.txt",
+            "queues, consensus, backpressure, webrtc, rust",
+            "$ ping shubham",
+            "64 bytes from bengaluru: reply within a day",
+          ]}
+        />
+        <div className="links-file">
+          <p className="muted">$ cat ~/.links</p>
+          <ul>
+            {contactLinks(site).map((link) => (
+              <li key={link.label}>
+                <span className="links-file__key">{link.label.padEnd(9, " ")}</span>
+                <span className="muted">→ </span>
+                <a href={link.href} rel="me">{link.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }
 
 function Home({ onNavigate, site }) {
   return (
-    <main id="main-content">
-      <Hero site={site} />
-      <AboutTimeline />
-      <Principle />
-      <ProofSection onNavigate={onNavigate} />
-    </main>
+    <>
+      <Hero site={site} onNavigate={onNavigate} />
+      <section className="home-section" id="work" aria-labelledby="work-title">
+        <SectionTitle
+          path="work"
+          title={<span id="work-title">Three systems that changed the company</span>}
+          aside={<span className="muted">voice · messaging · reliability</span>}
+        />
+        {workProof.map((proof) => (
+          <div key={proof.id}>
+            <Dots />
+            <WorkStory proof={proof} onNavigate={onNavigate} />
+          </div>
+        ))}
+        <Dots />
+        <blockquote className="principle">
+          <p>“The goal is not zero failure. It’s a system that <span className="accent">knows what to do next.</span>”</p>
+          <footer className="muted">— operating principle 001</footer>
+        </blockquote>
+      </section>
+      <RecentWriting onNavigate={onNavigate} site={site} />
+      <SelectedProjects onNavigate={onNavigate} />
+      <Contact site={site} />
+    </>
   );
 }
 
-function ArchivePage({ page, title, description, onNavigate }) {
+/* ------------------------------------------------------------------ */
+/* About                                                               */
+/* ------------------------------------------------------------------ */
+
+function About({ onNavigate, site }) {
+  const facts = [
+    ["name", site.name],
+    ["role", "principal software engineer @ limechat"],
+    ["based", "bengaluru, india"],
+    ["since", "2017 — first program, on an android phone"],
+    ["focus", "distributed systems, reliability, voice ai"],
+    ["tools", "rust, python, django, postgres, kafka, rabbitmq, redis, webrtc"],
+  ];
   return (
-    <main id="main-content" className="reading-page archive-page">
-      <header className="document-heading archive-heading">
-        <p className="document-kicker">~/archive/{page}</p>
-        <h1>{title}</h1>
-        <p>{description}</p>
-      </header>
-      <MarkdownPage page={page} metadataKey={page} onNavigate={onNavigate} />
-    </main>
+    <>
+      <PageHeading title="About" aside={<span className="muted">the longer version</span>} />
+      <div className="about-card">
+        <div className="about-card__title"><span>whoami</span><span className="muted">~/.profile</span></div>
+        <dl>
+          {facts.map(([key, value]) => (
+            <div key={key}><dt>{key}</dt><dd>{value}</dd></div>
+          ))}
+          <div>
+            <dt>links</dt>
+            <dd className="about-card__links">
+              {contactLinks(site).map((link) => <a key={link.label} href={link.href} rel="me">{link.label}</a>)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+      <ol className="timeline">
+        <li><span className="accent">2017</span><p>Started programming on an Android phone. The first program came before the first laptop.</p></li>
+        <li><span className="accent">2020</span><p>First production backend: search, pub/sub, real-time chat, and infrastructure for real users.</p></li>
+        <li><span className="accent">2021 → now</span><p>LimeChat — from backend engineer to principal engineer across messaging, voice, and reliability.</p></li>
+      </ol>
+      <Dots />
+      <MarkdownPage page="about" onNavigate={onNavigate} className="about-prose" />
+    </>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Shell                                                               */
+/* ------------------------------------------------------------------ */
 
 function SiteFooter({ onNavigate, site }) {
   return (
     <footer className="site-footer">
-      <div>
-        <span>~/CONTACT</span>
-        <h2>Have a difficult system?</h2>
-        <a href={`mailto:${site.email}`}>{site.email} ↗</a>
+      <Dots />
+      <div className="site-footer__grid">
+        <pre className="site-footer__mark" aria-hidden="true">{`┌─┐┬┌─
+└─┐├┴┐
+└─┘┴ ┴`}</pre>
+        <nav aria-label="Footer">
+          {primaryNav.map((item) => (
+            <RouteLink key={item.kind} view={{ kind: item.kind }} onNavigate={onNavigate}>
+              <span className="muted">[{item.key}]</span> {item.label.toLowerCase()}
+            </RouteLink>
+          ))}
+        </nav>
+        <nav aria-label="Elsewhere">
+          {contactLinks(site).map((link) => <a key={link.label} href={link.href} rel="me">{link.label} ↗</a>)}
+          <a href={site.admin}>publish ↗</a>
+        </nav>
       </div>
-      <p>SHUBHAM KUMAR<br />BENGALURU / INDIA<br />© {new Date().getFullYear()}</p>
-      <nav>
-        <a href={site.github} rel="me">GITHUB ↗</a>
-        <HeaderLink href={hrefForView({ kind: "writing" })} onClick={() => onNavigate({ kind: "writing" })}>WRITINGS ↗</HeaderLink>
-        <HeaderLink href={hrefForView({ kind: "history" })} onClick={() => onNavigate({ kind: "history" })}>CAREER LOG ↗</HeaderLink>
-        <HeaderLink href={hrefForView({ kind: "projects" })} onClick={() => onNavigate({ kind: "projects" })}>PROJECTS ↗</HeaderLink>
-        <a href={site.admin}>PUBLISH ↗</a>
-        <a href="#top">BACK TO TOP ↑</a>
-      </nav>
+      <p className="site-footer__legal muted">
+        © {new Date().getFullYear()} {site.name.toLowerCase()} · built with react and too many box-drawing characters · <a href="#top">back to top ↑</a>
+      </p>
     </footer>
   );
 }
 
+function titleFor(view, articleTitle) {
+  if (view.kind === "home") return "Systems, reliability, voice AI";
+  if (view.kind === "post") return articleTitle || "Writing";
+  if (view.kind === "not-found") return "Not found";
+  return primaryNav.find((item) => item.kind === view.kind)?.label;
+}
+
 export default function App() {
   const [view, setView] = useState(() => viewFromSearch(globalThis.location.search));
-  const [site, setSite] = useState(defaultSite);
-  const [theme, setTheme] = useState(() => globalThis.localStorage?.getItem("shubh-theme") || "dark");
+  const [site, setSite] = useState(() => withDerived(defaultSite));
+  const [theme, setTheme] = useState(() => {
+    try {
+      return globalThis.localStorage.getItem("shubh-theme") || "dark";
+    } catch {
+      return "dark";
+    }
+  });
   const [articleTitle, setArticleTitle] = useState("");
 
   const navigate = useCallback((nextView, section = "") => {
@@ -256,83 +425,68 @@ export default function App() {
     return () => globalThis.removeEventListener("popstate", handlePopState);
   }, []);
 
+  // Single-key navigation, shown as [h] [w] [p] [a] in the footer.
+  useEffect(() => {
+    function handleKey(event) {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
+      if (event.target.closest?.("input, textarea, select, [contenteditable]")) return;
+      const item = primaryNav.find((entry) => entry.key === event.key);
+      if (item) navigate({ kind: item.kind });
+    }
+    globalThis.addEventListener("keydown", handleKey);
+    return () => globalThis.removeEventListener("keydown", handleKey);
+  }, [navigate]);
+
   useEffect(() => {
     const controller = new AbortController();
     fetch("./content/site.json", { signal: controller.signal })
       .then((response) => (response.ok ? response.json() : defaultSite))
-      .then(setSite)
-      .catch((error) => {
-        if (error.name !== "AbortError") setSite(defaultSite);
-      });
+      .then((loaded) => setSite(withDerived({ ...defaultSite, ...loaded })))
+      .catch(() => {});
     return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    globalThis.localStorage?.setItem("shubh-theme", theme);
+    try {
+      globalThis.localStorage.setItem("shubh-theme", theme);
+    } catch {
+      // Storage can be unavailable (private windows); the theme still applies for this visit.
+    }
+    document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
   }, [theme]);
 
   useEffect(() => {
-    const page = view.kind === "writing"
-      ? "Writing"
-      : view.kind === "post"
-        ? articleTitle || "Essay"
-        : view.kind === "history"
-          ? "Career log"
-          : view.kind === "projects"
-            ? "Projects"
-        : view.kind === "about"
-          ? "Systems, reliability, voice AI"
-          : "Not found";
-    document.title = `${page} — ${site.name}`;
-  }, [articleTitle, site.name, view.kind]);
+    document.title = `${titleFor(view, articleTitle)} — ${site.name}`;
+  }, [articleTitle, site.name, view]);
+
+  const onArticleMetadata = useCallback((metadata) => setArticleTitle(metadata.title), []);
 
   let content;
-  if (view.kind === "about") content = <Home onNavigate={navigate} site={site} />;
-  else if (view.kind === "writing") content = <main id="main-content" className="reading-page"><WritingIndex onNavigate={navigate} /></main>;
-  else if (view.kind === "post") {
-    content = (
-      <main id="main-content" className="reading-page reading-page--article">
-        <Article
-          slug={view.slug}
-          metadataKey={view.slug}
-          onNavigate={navigate}
-          onMetadata={(_, metadata) => setArticleTitle(metadata.title)}
-        />
-      </main>
-    );
-  } else if (view.kind === "history") {
-    content = (
-      <ArchivePage
-        page="about"
-        title="Career log"
-        description="The longer path—from an Android phone to production systems at scale."
-        onNavigate={navigate}
-      />
-    );
-  } else if (view.kind === "projects") {
-    content = (
-      <ArchivePage
-        page="projects"
-        title="Systems lab"
-        description="Small machines built to understand the large ones."
-        onNavigate={navigate}
-      />
-    );
-  } else content = <main id="main-content" className="reading-page"><NotFound /></main>;
+  if (view.kind === "home") content = <Home onNavigate={navigate} site={site} />;
+  else if (view.kind === "writing") content = <WritingIndex onNavigate={navigate} site={site} />;
+  else if (view.kind === "post") content = <Article slug={view.slug} onNavigate={navigate} onMetadata={onArticleMetadata} site={site} />;
+  else if (view.kind === "projects") content = <ProjectsPage onNavigate={navigate} />;
+  else if (view.kind === "about") content = <About onNavigate={navigate} site={site} />;
+  else content = <NotFound onNavigate={navigate} />;
 
   return (
-    <div className="site-shell" data-theme={theme} id="top">
-      <div className="page-frame" aria-hidden="true" />
+    <div className="site" id="top">
       <a className="skip-link" href="#main-content">Skip to content</a>
-      <SiteHeader
-        onNavigate={navigate}
-        site={site}
-        theme={theme}
-        toggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-      />
-      {content}
-      <SiteFooter onNavigate={navigate} site={site} />
+      <Announcement onNavigate={navigate} />
+      <div className="container">
+        <SiteHeader
+          view={view}
+          onNavigate={navigate}
+          site={site}
+          theme={theme}
+          toggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+        />
+        <main id="main-content" className={`main main--${view.kind}`} key={view.kind === "post" ? view.slug : view.kind}>
+          {content}
+        </main>
+        <SiteFooter onNavigate={navigate} site={site} />
+      </div>
     </div>
   );
 }

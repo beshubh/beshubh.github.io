@@ -6,11 +6,18 @@ publishing remains independent from the application shell.
 
 ## Edit the portfolio
 
-The homepage layout and introductory copy live in `src/App.jsx`. The three
-LimeChat proof stories—the Voice product, Unified Messages System, and
-reliability initiative—live in `src/content/work.js`. Their animated diagrams
-are implemented behind the `ProofVisual` interface in
-`src/components/ProofVisuals.jsx`.
+The site is a monospace, ASCII-first design. The shell, homepage, and about page
+live in `src/App.jsx`; the writing index, articles, and projects page live in
+`src/content/ContentViews.jsx`. The three LimeChat work stories—the Voice
+product, Unified Messages System, and reliability initiative—live in
+`src/content/work.js`, and their animated ASCII flow diagrams, the hero banner,
+and the spinning torus are in `src/components/Ascii.jsx`.
+
+Contact links come from `content/site.json`. Add `"linkedin"` (and optionally
+`"x"`) URLs there to show them in the header card, contact section, and footer.
+
+The projects page reads the list items in `content/pages/projects.md`
+(`- [Name](url) — description`).
 
 ## Add a writing
 
