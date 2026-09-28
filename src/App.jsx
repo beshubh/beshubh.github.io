@@ -96,13 +96,13 @@ function SiteHeader({ view, onNavigate, site, theme, toggleTheme }) {
 /* Home                                                                */
 /* ------------------------------------------------------------------ */
 
-const stats = [
-  { label: "messages / day", value: "100M+", note: "unified messages system" },
-  { label: "requests / day", value: "1B", note: "across every channel" },
-  { label: "voice revenue", value: "$600K+", note: "product I started", accent: true },
-  { label: "cpu after rust port", value: "-80%", note: "python → rust media bridge", accent: true },
-  { label: "queue outages", value: "0", note: "since the breakers landed" },
-  { label: "peak agent latency", value: "6s", note: "down from 15s", accent: true },
+const impactLog = [
+  { tag: "messaging", what: <>designed the <em>Unified Messages System</em>, one backbone for every channel</>, result: "100M+ msgs · 1B+ req / day" },
+  { tag: "agent-studio", what: <>shipped <em>Agent Studio</em>: scripted Rasa bots → LLM agents that reason and use tools</>, result: "Rasa → agents" },
+  { tag: "agent-studio", what: <>added a <em>semantic cache</em> so familiar questions skip the full model round trip</>, result: "−30% latency" },
+  { tag: "voice", what: <>started LimeChat’s <em>voice product</em>: AI agents that take WhatsApp calls</>, result: "$600K+ revenue" },
+  { tag: "voice", what: <>rewrote the call media bridge from <em>Python to Rust</em></>, result: "−80% cpu" },
+  { tag: "reliability", what: <>added <em>circuit breakers + fallback queues</em> across Kafka, RabbitMQ, Redis</>, result: "0 overload outages" },
 ];
 
 function Hero({ site, onNavigate }) {
@@ -111,13 +111,6 @@ function Hero({ site, onNavigate }) {
 
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <div className="hero__tabs" aria-hidden="true">
-        <span className="accent">SHUBHAM KUMAR</span>
-        <span>PRINCIPAL ENGINEER</span>
-        <span>DISTRIBUTED SYSTEMS</span>
-        <span>RELIABILITY</span>
-        <span>VOICE AI · RUST</span>
-      </div>
       <div className="hero__grid">
         <div className="hero__copy">
           <p className="comment">// principal software engineer · bengaluru, in</p>
@@ -164,15 +157,19 @@ function Hero({ site, onNavigate }) {
           </div>
         </figure>
       </div>
-      <dl className="stats">
-        {stats.map((stat) => (
-          <div key={stat.label}>
-            <dt>{stat.label}</dt>
-            <dd className={stat.accent ? "accent" : ""}><CountUp value={stat.value} /></dd>
-            <dd className="muted">{stat.note}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="impact-log">
+        <p className="impact-log__cmd"><b>shubham@limechat</b>:~$ cat impact.log</p>
+        <ol>
+          {impactLog.map((entry) => (
+            <li key={entry.result}>
+              <span className="impact-log__tag">[{entry.tag}]</span>
+              <span className="impact-log__what">{entry.what}</span>
+              <span className="impact-log__result"><CountUp value={entry.result} /></span>
+            </li>
+          ))}
+        </ol>
+        <p className="impact-log__cmd" aria-hidden="true">:~$ <span className="cursor">█</span></p>
+      </div>
     </section>
   );
 }
