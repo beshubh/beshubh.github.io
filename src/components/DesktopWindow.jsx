@@ -41,6 +41,11 @@ export function DesktopWindow({
     event.currentTarget.releasePointerCapture(event.pointerId);
   }
 
+  function handleWindowPointerDown(event) {
+    if (event.target.closest("a, button, input, textarea, select, [contenteditable]")) return;
+    onFocus();
+  }
+
   return (
     <section
       className={`desktop-window${active ? " is-active" : ""}${windowState.maximized ? " is-maximized" : ""}`}
@@ -53,7 +58,7 @@ export function DesktopWindow({
         zIndex: windowState.z,
       }}
       hidden={windowState.minimized}
-      onPointerDown={onFocus}
+      onPointerDown={handleWindowPointerDown}
       role="dialog"
       aria-labelledby={titleId}
     >
