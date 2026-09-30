@@ -49,7 +49,7 @@ export const workProof = [
     ],
     metrics: [
       { value: "0", label: "queue-overload outages" },
-      { value: "15s → 6s", label: "peak agent latency" },
+      { value: "15s → 5s", label: "peak agent latency" },
     ],
     articleSlug: "improving-resilience-at-limechat",
   },
