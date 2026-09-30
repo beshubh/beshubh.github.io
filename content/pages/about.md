@@ -69,11 +69,18 @@ Three rounds later, I joined as a software engineer.
 - I designed **ModelNexus**, a model-agnostic LLM and agent library that did not see adoption at LimeChat—a product nobody wanted, maybe? It was a good lesson.
 - I architected LimeChat's Voice Agents platform, creating an entirely new product for the company. It let clients handle calls with AI agents, contributed over **$600K** in revenue, and brought in ~**10** large enterprise deals.
 - I built a novel audio bridge between WhatsApp and LiveKit that made it possible to handle WhatsApp calls with AI agents. We built it before anyone else in India—and even before LiveKit itself—making LimeChat the first company in India to offer this capability. I wrote about it [here](./?post=story-of-how-we-built-voice-agents-at-limechat).
-  - I ported the Python prototype to **Rust**, cutting CPU usage by 80% and significantly reducing hosting costs.
+  - I ported the Python prototype to **Rust**, cutting CPU usage by **80%** and memory by **50%**, and significantly reducing hosting costs.
 - I led a company-wide reliability initiative that made critical infrastructure self-protecting under overload:
   - added circuit breakers across Kafka, RabbitMQ, Redis, DB-backed caches, and databases to contain failures before they cascaded.
   - designed automatic fallback queue paths that rerouted work when primary queues were overwhelmed.
   - archived old transactional data to S3 and added system-wide CPU, memory, and bandwidth alerts.
   - eliminated queue-overload outages and prevented runaway workloads from overwhelming databases.
   - I wrote about the design [here](./?post=improving-resilience-at-limechat).
-- I worked with the Agents Studio team to cut peak chat-agent latency by 60%, from 15s to 6s, by introducing semantic caching and removing high-fanout database reads.
+- I worked with the Agents Studio team to cut peak chat-agent latency by **66%**, from **15s** to **5s**, by introducing semantic caching and removing high-fanout database reads.
+
+**After LimeChat (Aug 2026 – now)**:
+
+- I quit my job in August 2026 to code by hand and go deep on databases. I had spent years scaling systems on top of **PostgreSQL**, **Redis** and **Kafka**; I wanted to understand what happens underneath.
+- I finished building an LSM-tree storage engine in **Rust** through the [mini-lsm](https://skyzh.github.io/mini-lsm/) course.
+- I read the "Evolution of RocksDB" paper and wrote notes on write and space amplification, tombstones and rate-limited deletes.
+- I learned **C++** for CMU's 15-445 Database Systems course and I'm ~95% through it, building a database from scratch: a buffer pool manager (LRU-K replacement), a B+ tree index, a query execution engine, and concurrency control (one task left).
