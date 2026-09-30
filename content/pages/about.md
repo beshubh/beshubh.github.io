@@ -1,6 +1,6 @@
 ---
 title: About
-description: Principal software engineer working on distributed systems, reliability, and performance.
+description: Software engineer working on databases, distributed systems, and reliability. Previously principal engineer at LimeChat; open to new roles.
 ---
 
 Hey, my name is Shubham and I am a software engineer.

@@ -113,15 +113,15 @@ function Hero({ site, onNavigate }) {
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero__grid">
         <div className="hero__copy">
-          <p className="comment">// principal software engineer · bengaluru, in</p>
+          <p className="comment">// software engineer · bengaluru, in · open to roles</p>
           <DecryptBanner word="SHUBHAM" label="Shubham" />
           <h1 id="hero-title">
             I build systems that <span className="accent">stay up</span> when reality stops cooperating.
           </h1>
           <p className="hero__summary">
-            Principal engineer at <a href="https://limechat.ai">LimeChat</a>. I designed the messaging backbone that moves
-            100M+ messages a day, started the company's voice AI product, and led the work that taught our overloaded systems
-            to protect themselves. I like the part after the happy path.
+            Previously principal engineer at <a href="https://limechat.ai">LimeChat</a>, where I designed the messaging backbone
+            that moves 100M+ messages a day, started the company's voice AI product, and led the work that taught our overloaded
+            systems to protect themselves. Now I'm going deep on databases, and I'm open to my next role.
           </p>
           <div className="command">
             <span className="prompt">$</span>
@@ -158,7 +158,7 @@ function Hero({ site, onNavigate }) {
         </figure>
       </div>
       <div className="impact-log">
-        <p className="impact-log__cmd"><b>shubham@limechat</b>:~$ cat impact.log</p>
+        <p className="impact-log__cmd"><b>shubham@bengaluru</b>:~$ cat impact.log</p>
         <ol>
           {impactLog.map((entry) => (
             <li key={entry.result}>
@@ -255,7 +255,7 @@ function Contact({ site }) {
         <Typewriter
           lines={[
             "$ whoami",
-            "shubham — principal software engineer",
+            "shubham — software engineer, open to roles",
             "$ cat interests.txt",
             "rust, databases, distributed systems, webrtc",
             "$ ping shubham",
@@ -286,7 +286,7 @@ function Home({ onNavigate, site }) {
       <section className="home-section" id="work" aria-labelledby="work-title">
         <SectionTitle
           path="work"
-          title={<span id="work-title">Three systems that changed the company</span>}
+          title={<span id="work-title">Three systems that changed LimeChat</span>}
           aside={<span className="muted">voice · messaging · reliability</span>}
         />
         {workProof.map((proof) => (
@@ -315,11 +315,12 @@ function Home({ onNavigate, site }) {
 function About({ onNavigate, site }) {
   const facts = [
     ["name", site.name],
-    ["role", "principal software engineer @ limechat"],
+    ["role", "software engineer · ex-principal @ limechat"],
+    ["status", "open to new roles"],
     ["based", "bengaluru, india"],
     ["since", "2017 — first program, on an android phone"],
-    ["focus", "distributed systems, reliability, voice ai"],
-    ["tools", "rust, python, django, postgres, kafka, rabbitmq, redis, webrtc"],
+    ["focus", "databases, distributed systems, reliability"],
+    ["tools", "rust, c++, python, django, postgres, kafka, rabbitmq, redis, webrtc"],
   ];
   return (
     <>
@@ -341,7 +342,8 @@ function About({ onNavigate, site }) {
       <ol className="timeline">
         <li><span className="accent">2017</span><p>Started programming on an Android phone. The first program came before the first laptop.</p></li>
         <li><span className="accent">2020</span><p>First production backend: search, pub/sub, real-time chat, and infrastructure for real users.</p></li>
-        <li><span className="accent">2021 → now</span><p>LimeChat — from backend engineer to principal engineer across messaging, voice, and reliability.</p></li>
+        <li><span className="accent">2021 → 2026</span><p>LimeChat — from backend engineer to principal engineer across messaging, voice, and reliability.</p></li>
+        <li><span className="accent">2026 → now</span><p>Databases from scratch: an LSM-tree engine in Rust and CMU 15-445 in C++. Open to my next role.</p></li>
       </ol>
       <Dots />
       <MarkdownPage page="about" onNavigate={onNavigate} className="about-prose" />
