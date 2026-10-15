@@ -97,12 +97,30 @@ function SiteHeader({ view, onNavigate, site, theme, toggleTheme }) {
 /* ------------------------------------------------------------------ */
 
 const impactLog = [
-  { tag: "messaging", what: <>designed the <em>Unified Messages System</em>, one backbone for every channel</>, result: "100M+ msgs · 1B+ req / day" },
-  { tag: "agent-studio", what: <>shipped <em>Agent Studio</em>: scripted Rasa bots → LLM agents that reason and use tools</>, result: "Rasa → agents" },
-  { tag: "agent-studio", what: <>added a <em>semantic cache</em> so familiar questions skip the full model round trip</>, result: "−30% latency" },
-  { tag: "voice", what: <>started LimeChat’s <em>voice product</em>: AI agents that take WhatsApp calls</>, result: "$600K+ revenue" },
-  { tag: "voice", what: <>rewrote the call media bridge from <em>Python to Rust</em></>, result: "−80% cpu" },
-  { tag: "reliability", what: <>added <em>circuit breakers + fallback queues</em> across Kafka, RabbitMQ, Redis</>, result: "0 overload outages" },
+  {
+    tag: "platform",
+    what: <>Every LimeChat product reaches its customers through one system: the <em>Unified Messages System</em>, which I designed and scaled.</>,
+    detail: "Millions of dollars in yearly revenue run through it.",
+    result: "100M+ msgs · 1B req / day",
+  },
+  {
+    tag: "ai-agents",
+    what: <>LimeChat had only ever done text. I architected the <em>Voice Agents platform</em> that gave it a second product line.</>,
+    detail: "Then I built the WhatsApp ↔ LiveKit bridge that didn’t exist yet, before LiveKit had one. That made LimeChat the first company in India where an AI agent answers your WhatsApp call.",
+    result: "$600K+ revenue · ~10 enterprise deals",
+  },
+  {
+    tag: "infrastructure",
+    what: <>Peak traffic at LimeChat is now something the system runs through, not an incident someone has to handle.</>,
+    detail: "I led the company-wide reliability work that makes that true. Every critical queue, cache and database sits behind breakers. Important work moves to fallback paths. Consumers scale with the backlog.",
+    result: "Kafka · RabbitMQ · Redis · Postgres",
+  },
+  {
+    tag: "ai-agents",
+    what: <>I led the execution of <em>Agents Studio</em>, which moved LimeChat’s bots off scripted Rasa flows and onto LLM agents that reason and use tools.</>,
+    detail: "With semantic caching and fewer high-fanout reads, peak response time went from 15s to 5s.",
+    result: "Rasa → LLM agents",
+  },
 ];
 
 function Hero({ site, onNavigate }) {
@@ -163,7 +181,10 @@ function Hero({ site, onNavigate }) {
           {impactLog.map((entry) => (
             <li key={entry.result}>
               <span className="impact-log__tag">[{entry.tag}]</span>
-              <span className="impact-log__what">{entry.what}</span>
+              <span className="impact-log__what">
+                {entry.what}
+                <span className="impact-log__detail">↳ {entry.detail}</span>
+              </span>
               <span className="impact-log__result"><CountUp value={entry.result} /></span>
             </li>
           ))}
@@ -196,11 +217,13 @@ function WorkStory({ proof, onNavigate }) {
         <ul>
           {proof.details.map((detail) => <li key={detail}>{detail}</li>)}
         </ul>
-        <dl className="work-story__metrics">
-          {proof.metrics.map((metric) => (
-            <div key={metric.label}><dd>{metric.value}</dd><dt>{metric.label}</dt></div>
-          ))}
-        </dl>
+        {proof.metrics.length > 0 && (
+          <dl className="work-story__metrics">
+            {proof.metrics.map((metric) => (
+              <div key={metric.label}><dd>{metric.value}</dd><dt>{metric.label}</dt></div>
+            ))}
+          </dl>
+        )}
         {proof.articleSlug ? (
           <RouteLink className="link-arrow" view={{ kind: "post", slug: proof.articleSlug }} onNavigate={onNavigate}>
             read the engineering note →
@@ -210,7 +233,7 @@ function WorkStory({ proof, onNavigate }) {
         )}
       </div>
       <figure className="work-story__visual">
-        <figcaption><span>fig.{Number(proof.index)}</span><span className="muted">live · simplified</span></figcaption>
+        <figcaption><span>fig.{Number(proof.index)}</span></figcaption>
         <div className="scroll-x"><FlowDiagram type={proof.id} label={proof.summary} /></div>
       </figure>
     </article>
@@ -295,11 +318,6 @@ function Home({ onNavigate, site }) {
             <WorkStory proof={proof} onNavigate={onNavigate} />
           </div>
         ))}
-        <Dots />
-        <blockquote className="principle">
-          <p>“The goal is not zero failure. It’s a system that <span className="accent">knows what to do next.</span>”</p>
-          <footer className="muted">— operating principle 001</footer>
-        </blockquote>
       </section>
       <RecentWriting onNavigate={onNavigate} site={site} />
       <SelectedProjects onNavigate={onNavigate} />

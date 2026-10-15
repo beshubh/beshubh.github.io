@@ -47,10 +47,7 @@ export const workProof = [
       "Designed fallback queue paths that reroute work away from overwhelmed primaries.",
       "Added resource alerts and moved old transactional data out of hot databases.",
     ],
-    metrics: [
-      { value: "0", label: "queue-overload outages" },
-      { value: "15s → 5s", label: "peak agent latency" },
-    ],
+    metrics: [],
     articleSlug: "improving-resilience-at-limechat",
   },
 ];

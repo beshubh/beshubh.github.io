@@ -12,7 +12,7 @@ assert.equal(workProof.length, 3, "The home page should keep the proof section f
 for (const proof of workProof) {
   assert.ok(proof.title, `${proof.id} must have a title.`);
   assert.ok(proof.summary, `${proof.id} must explain the work.`);
-  assert.equal(proof.metrics.length, 2, `${proof.id} must expose two concrete proof points.`);
+  assert.ok([0, 2].includes(proof.metrics.length), `${proof.id} must expose two concrete proof points or none.`);
 }
 
 assert.equal(workProof[0].articleSlug, "story-of-how-we-built-voice-agents-at-limechat");
