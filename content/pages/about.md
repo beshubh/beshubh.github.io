@@ -80,7 +80,7 @@ Three rounds later, I joined as a software engineer.
 
 **After LimeChat (Aug 2026 – now)**:
 
-- I quit my job in August 2026 to code by hand and go deep on databases. I had spent years scaling systems on top of **PostgreSQL**, **Redis** and **Kafka**; I wanted to understand what happens underneath.
+- I left LimeChat in August 2026 to go deep on systems programming and databases. I had spent years scaling systems on top of **PostgreSQL**, **Redis** and **Kafka**; I wanted to understand what happens underneath.
 - I finished building an LSM-tree storage engine in **Rust** through the [mini-lsm](https://skyzh.github.io/mini-lsm/) course.
 - I read the "Evolution of RocksDB" paper and wrote notes on write and space amplification, tombstones and rate-limited deletes.
-- I learned **C++** for CMU's 15-445 Database Systems course and I'm ~95% through it, building a database from scratch: a buffer pool manager (LRU-K replacement), a B+ tree index, a query execution engine, and concurrency control (one task left).
+- I learned **C++** and finished CMU's 15-445 Database Systems course with **100/100 on every project**, building a database from scratch: a buffer pool manager (ARC replacement, disk scheduler, page guards), a concurrent B+ tree index, a query execution engine (hash joins, external merge sort, window functions, optimizer rules), and MVCC concurrency control.
