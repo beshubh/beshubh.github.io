@@ -15,12 +15,12 @@
   --line: #262624;
   --grid: rgba(255, 255, 255, .025);
 
-  --accent: #5ce1e6;
-  --accent-ink: #0a0a0a;
-  --cta: #ff4fa3;
-  --cta-ink: #fff;
-  --banner: #5ce1e6;
-  --banner-ink: #0a0a0a;
+  --accent: #ff6a2b;
+  --accent-ink: #111111;
+  --cta: #ff6a2b;
+  --cta-ink: #111111;
+  --banner: #ff6a2b;
+  --banner-ink: #111111;
 
   --blue: #5c9dff;
   --orange: #f4722b;
@@ -45,9 +45,10 @@
   --faint: #b9b8ae;
   --line: #d6d5cb;
   --grid: rgba(0, 0, 0, .035);
-  --accent: #0e7f86;
+  --accent: #c2410c;
   --accent-ink: #fff;
-  --cta: #c21f73;
+  --cta: #c2410c;
+  --cta-ink: #fff;
   --blue: #1f63d6;
   --orange: #c9500e;
   --yellow: #9a7400;
