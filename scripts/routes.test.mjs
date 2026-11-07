@@ -5,7 +5,11 @@ assert.deepEqual(viewFromSearch(""), { kind: "home" });
 assert.deepEqual(viewFromSearch("?page=home"), { kind: "home" });
 assert.deepEqual(viewFromSearch("?page=about"), { kind: "about" });
 assert.deepEqual(viewFromSearch("?page=writing"), { kind: "writing" });
-assert.deepEqual(viewFromSearch("?page=projects"), { kind: "projects" });
+assert.deepEqual(
+  viewFromSearch("?page=projects"),
+  { kind: "home" },
+  "Old projects links must keep working after the list moved to the home page.",
+);
 assert.deepEqual(
   viewFromSearch("?page=history"),
   { kind: "about" },
@@ -25,7 +29,6 @@ assert.deepEqual(viewFromSearch("?page=unknown"), {
 assert.equal(hrefForView({ kind: "home" }), "./");
 assert.equal(hrefForView({ kind: "about" }), "./?page=about");
 assert.equal(hrefForView({ kind: "writing" }), "./?page=writing");
-assert.equal(hrefForView({ kind: "projects" }), "./?page=projects");
 assert.equal(
   hrefForView({ kind: "post", slug: "celery & queues" }),
   "./?post=celery%20%26%20queues",

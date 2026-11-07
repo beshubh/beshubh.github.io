@@ -1,7 +1,7 @@
-const pageViews = new Set(["home", "about", "writing", "projects"]);
+const pageViews = new Set(["home", "about", "writing"]);
 
-// Older links used ?page=history for the career log, which now lives on the about page.
-const pageAliases = { history: "about" };
+// Older links keep working: the career log moved to the about page, and projects to the home page.
+const pageAliases = { history: "about", projects: "home" };
 
 export function viewFromSearch(search = "") {
   const params = new URLSearchParams(search);

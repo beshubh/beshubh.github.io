@@ -1,23 +1,22 @@
 # Shubham Kumar — portfolio
 
-A React portfolio designed for GitHub Pages and built with Vite. The site uses a
-dark, software-native visual system and keeps long-form writing in Markdown so
-publishing remains independent from the application shell.
+A React portfolio designed for GitHub Pages and built with Vite. The homepage is
+laid out like a man page, in light and dark themes, and long-form writing stays
+in Markdown so publishing remains independent from the application shell.
 
 ## Edit the portfolio
 
-The site is a monospace, ASCII-first design. The shell, homepage, and about page
-live in `src/App.jsx`; the writing index, articles, and projects page live in
-`src/content/ContentViews.jsx`. The three LimeChat work stories—the Voice
-product, Unified Messages System, and reliability initiative—live in
-`src/content/work.js`, and their animated ASCII flow diagrams, the hero banner,
-and the spinning torus are in `src/components/Ascii.jsx`.
+The shell and homepage live in `src/App.jsx`; the writing index and articles
+live in `src/content/ContentViews.jsx`. The homepage's options and experience,
+including the LimeChat highlights, live in `src/content/manual.js`. All styles
+and theme colors are in `src/styles.css`.
 
-Contact links come from `content/site.json`. Add `"linkedin"` (and optionally
-`"x"`) URLs there to show them in the header card, contact section, and footer.
+Contact links come from `content/site.json`. Add `"x"` and `"resume"` URLs there
+to show them in the header and the SEE ALSO section.
 
-The projects page reads the list items in `content/pages/projects.md`
-(`- [Name](url) — description`).
+The homepage's PROJECTS section reads the list items in
+`content/pages/projects.md` (``- [name](url) — Description. `language` ``). The
+story page renders `content/pages/about.md`.
 
 ## Add a writing
 
@@ -47,8 +46,9 @@ committed to `main`.
 
 ## Publish from the browser
 
-The portfolio links to a private publisher hosted by the
-`shubh-portfolio-admin` Cloudflare Worker. GitHub OAuth restricts publishing to
+Writings can be published from a private publisher hosted by the
+`shubh-portfolio-admin` Cloudflare Worker. The site does not link to it; open
+`/admin/` on the Worker directly. GitHub OAuth restricts publishing to
 the configured `ALLOWED_GITHUB_LOGIN`, and the Worker creates the Markdown file
 on `main` through GitHub's contents API. No database or long-lived server is
 required.
@@ -100,8 +100,8 @@ The public writing routes remain:
 - `?page=writing` for the writing index.
 - `?post=your-post-slug` for an individual essay.
 
-The longer career biography and systems-project archive remain available at
-`?page=history` and `?page=projects`.
+The story is at `?page=about`. Older `?page=history` links still open it, and
+older `?page=projects` links open the homepage.
 
 ## Verify
 
